@@ -5,6 +5,19 @@ spring:
   jackson:
     serialization:
       indent_output: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nandansanjay35@gmail.com
+    # Use the 16-character App Password generated from your Google Account
+    password: tkza enqy koeb yvzx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
   datasource:
     url: jdbc:sqlite:./data/leetcode.db

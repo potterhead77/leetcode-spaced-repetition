@@ -23,20 +23,13 @@ public class SpacedRepetitionService {
     private final UserSpacedRepetitionRepository srRepository;
     private final LeetCodeClient leetCodeClient;
 
-    /**
-     * Syncs recent AC submissions from LeetCode to the SR database.
-     * Call this periodically or on user login.
-     */
     public void syncUserSubmissions(String username) {
         Logger.info("Syncing submissions for SR: {}", username);
-        // Fetch last 50 submissions to catch up
         var response = leetCodeClient.fetchUserRecentSubmissions(username, 50);
 
         if (response != null && response.getData() != null) {
             List<UserRecentSubmissionsResponse.Submission> submissions = response.getData().getRecentAcSubmissionList();
             for (UserRecentSubmissionsResponse.Submission sub : submissions) {
-                // We only care if it's "Accepted" (usually implied by recentAcSubmissionList)
-                // Add to DB if not exists
                 if (srRepository.findByUsernameAndTitleSlug(username, sub.getTitleSlug()).isEmpty()) {
                     UserSpacedRepetitionEntity newEntry = new UserSpacedRepetitionEntity(username, sub.getTitleSlug());
                     srRepository.save(newEntry);
@@ -46,11 +39,7 @@ public class SpacedRepetitionService {
         }
     }
 
-    /**
-     * Get all questions due for review today (or overdue).
-     */
     public List<SpacedRepetitionDTOs.DueQuestionResponse> getDueQuestions(String username) {
-        // First sync to make sure we have the latest
         try {
             syncUserSubmissions(username);
         } catch (Exception e) {
@@ -68,10 +57,6 @@ public class SpacedRepetitionService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Process a review (User solved it again and gave feedback quality 0-5).
-     * Implements SM-2 Algorithm.
-     */
     public void submitReview(String username, String titleSlug, int quality) {
         Optional<UserSpacedRepetitionEntity> entryOpt = srRepository.findByUsernameAndTitleSlug(username, titleSlug);
 
@@ -81,7 +66,6 @@ public class SpacedRepetitionService {
             srRepository.save(card);
             Logger.info("Updated SR for {} - Next review in {} days", titleSlug, card.getIntervalDays());
         } else {
-            // Should not happen if synced, but handle gracefully
             UserSpacedRepetitionEntity newCard = new UserSpacedRepetitionEntity(username, titleSlug);
             calculateNextInterval(newCard, quality);
             srRepository.save(newCard);
@@ -90,16 +74,13 @@ public class SpacedRepetitionService {
 
     private void calculateNextInterval(UserSpacedRepetitionEntity card, int quality) {
         if (quality < 3) {
-            // If they forgot, reset repetitions and interval
             card.setRepetitions(0);
             card.setIntervalDays(1);
         } else {
-            // Update Ease Factor
             double newEase = card.getEaseFactor() + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
-            if (newEase < 1.3) newEase = 1.3; // Minimum ease cap
+            if (newEase < 1.3) newEase = 1.3;
             card.setEaseFactor(newEase);
 
-            // Update Interval
             if (card.getRepetitions() == 0) {
                 card.setIntervalDays(1);
             } else if (card.getRepetitions() == 1) {
@@ -109,23 +90,17 @@ public class SpacedRepetitionService {
             }
             card.setRepetitions(card.getRepetitions() + 1);
         }
-
         card.setLastSolvedDate(LocalDateTime.now());
         card.setNextReviewDate(LocalDateTime.now().plusDays(card.getIntervalDays()));
     }
 
-    /**
-     * Resets progress for a specific user to allow immediate review.
-     */
     public void resetProgressForUser(String username) {
         List<UserSpacedRepetitionEntity> allEntries = srRepository.findAll().stream()
                 .filter(e -> e.getUsername().equals(username))
-                .collect(Collectors.toList());
+                .toList();
 
         for (UserSpacedRepetitionEntity entry : allEntries) {
-            // Move the review date to the past
             entry.setNextReviewDate(LocalDateTime.now().minusDays(1));
-            // Optional: Reset progress too
             entry.setIntervalDays(0);
             entry.setRepetitions(0);
         }
