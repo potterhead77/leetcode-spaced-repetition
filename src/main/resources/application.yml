@@ -1,6 +1,6 @@
 spring:
   application:
-    name: leetcode-api
+    name: leetcode-spaced-repetition
 
   jackson:
     serialization:

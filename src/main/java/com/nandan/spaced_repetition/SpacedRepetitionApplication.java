@@ -8,10 +8,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableCaching
 @EnableScheduling
-public class    LeetcodeApiApplication {
+public class SpacedRepetitionApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LeetcodeApiApplication.class, args);
+		SpringApplication.run(SpacedRepetitionApplication.class, args);
 	}
 
 }

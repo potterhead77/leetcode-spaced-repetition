@@ -4,7 +4,6 @@ import com.nandan.spaced_repetition.dto.DailyCodingChallengeResponse;
 import com.nandan.spaced_repetition.dto.QuestionListResponse;
 import com.nandan.spaced_repetition.dto.QuestionSearchRequest;
 import com.nandan.spaced_repetition.dto.UserRecentSubmissionsResponse;
-import com.rajat_singh.leetcode_api.dto.*;
 import com.nandan.spaced_repetition.enums.questions.FilterOperator;
 import com.nandan.spaced_repetition.enums.questions.SortField;
 import com.nandan.spaced_repetition.enums.questions.SortOrder;
