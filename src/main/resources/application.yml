@@ -37,13 +37,13 @@ spring:
     throw-exception-if-no-handler-found: true
   web:
     resources:
-        # This disables Spring's default static resource handling,
-        # which is necessary for the above property to work reliably for API-only apps.
+      # This disables Spring's default static resource handling,
+      # which is necessary for the above property to work reliably for API-only apps.
       add-mappings: false
 
 leetcode:
   graphql:
-        url: https://leetcode.com/graphql
+    url: https://leetcode.com/graphql
 
 app:
   api:
@@ -61,37 +61,6 @@ management:
     caches:
       enabled: true
 
-
-bucket4j:
-  cache-name: "default"
-  enabled: true
-  filter-config-cache-name: "filter-config-cache"
-  filters:
-    - cache-name: "search-api"
-      url: "/api/v1/questions/search"
-      strategy: "local" # Use "local" for single-instance, SQLite/Caffeine app
-      http-response-body: '{"message": "You have exhausted your API quota. Please try again later."}'
-      http-status-code: "429"
-      rate-limits:
-        - expression: "getRemoteAddr()" # This applies the limit *per IP address*
-          bandwidths:
-            - capacity: 20  # Each IP gets 20 "tokens"
-              time: 1       # ...per 1 minute
-              unit: "minutes"
-              fixed-refill-interval: 10
-              fixed-refill-interval-unit: "seconds"
-
-    # A stricter filter for the simple GET endpoint
-    - cache-name: "browse-api"
-      url: "/api/v1/questions"
-      strategy: "local"
-      http-status-code: "429"
-      rate-limits:
-        - expression: "getRemoteAddr()"
-          bandwidths:
-            - capacity: 50
-              time: 1
-              unit: "minutes"
 
 resilience4j:
   ratelimiter:
