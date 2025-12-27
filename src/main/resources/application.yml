@@ -10,7 +10,7 @@ spring:
     port: 587
     username: nandansanjay35@gmail.com
     # Use the 16-character App Password generated from your Google Account
-    password: tkza enqy koeb yvzx
+    password: ${GMAIL_APP_PASSWORD}
     properties:
       mail:
         smtp:
