@@ -12,4 +12,5 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 # Add "-Xmx350m" to limit Java to 350MB of RAM
-ENTRYPOINT ["java", "-Xmx350m", "-jar", "app.jar"]
+# 256MB Heap + ~150MB Overhead = ~400MB (Safe for 512MB container)
+ENTRYPOINT ["java", "-Xmx256m", "-jar", "app.jar"]
