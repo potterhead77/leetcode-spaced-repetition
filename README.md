@@ -67,4 +67,4 @@ Build: Compiles and verifies the project on every push.
 
 Security: Scans for vulnerabilities using CodeQL.
 
-Quality: Static analysis provided by JetBrains Qodana.
+
