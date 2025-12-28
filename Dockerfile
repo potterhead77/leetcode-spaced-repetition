@@ -11,4 +11,5 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Add "-Xmx350m" to limit Java to 350MB of RAM
+ENTRYPOINT ["java", "-Xmx350m", "-jar", "app.jar"]
