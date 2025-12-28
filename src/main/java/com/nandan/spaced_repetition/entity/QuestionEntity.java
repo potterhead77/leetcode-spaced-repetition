@@ -3,28 +3,19 @@ package com.nandan.spaced_repetition.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @Entity
 @Table(name = "leetcode_questions")
 public class QuestionEntity {
     @Id
-    int id;
-    String difficulty;
-    String title;
-    @Column(unique = true)
-    String titleSlug;
-    Double acRate;
-    Boolean isPaidOnly;
+    private int id; // LeetCode's frontend ID
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "question_topic_tags",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    private List<TopicTag> topicTags = new ArrayList<>();
-    String problemUrl;
-    Boolean isProblemOfTheDay;
+    @Column(unique = true)
+    private String titleSlug; // "two-sum"
+
+    private String title;      // "Two Sum"
+    private String difficulty; // "Easy"
+    private Double acRate;     // 45.5
+    private Boolean isPaidOnly;
+    private String problemUrl;
 }

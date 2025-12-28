@@ -1,12 +1,7 @@
 package com.nandan.spaced_repetition.client;
 
-import com.nandan.spaced_repetition.dto.DailyCodingChallengeResponse;
 import com.nandan.spaced_repetition.dto.QuestionListResponse;
-import com.nandan.spaced_repetition.dto.QuestionSearchRequest;
 import com.nandan.spaced_repetition.dto.UserRecentSubmissionsResponse;
-import com.nandan.spaced_repetition.enums.questions.FilterOperator;
-import com.nandan.spaced_repetition.enums.questions.SortField;
-import com.nandan.spaced_repetition.enums.questions.SortOrder;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -30,31 +25,6 @@ public class LeetCodeClient {
     private String leetcodeApiUrl;
 
     /**
-     * Fetches a list of questions from LeetCode based on the provided parameters.
-     * Used for searching questions.
-     */
-    @RateLimiter(name = "leetcode-api")
-    public QuestionListResponse fetchQuestionList(int skip, int limit, String categorySlug, String searchKeyword, QuestionSearchRequest.SortingCriteria sortBy, QuestionSearchRequest.FilterCriteria filters) {
-        HttpHeaders headers = new HttpHeaders();
-        setHeader(headers);
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("query", FETCH_QUESTIONS_QUERY);
-        requestBody.put("operationName", "problemsetQuestionListV2");
-
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("skip", skip);
-        variables.put("limit", limit);
-        variables.put("categorySlug", categorySlug);
-        variables.put("searchKeyword", searchKeyword);
-        variables.put("sortBy", sortBy);
-        variables.put("filters", filters);
-        requestBody.put("variables", variables);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-        return restTemplate.postForObject(leetcodeApiUrl, entity, QuestionListResponse.class);
-    }
-
-    /**
      * Fetches all questions from LeetCode with a high limit.
      * Used by the Scheduler to keep the local DB in sync.
      */
@@ -66,30 +36,25 @@ public class LeetCodeClient {
         requestBody.put("query", forAcRateSync ? FETCH_QUESTIONS_FOR_AC_RATE_SYNC_QUERY : FETCH_QUESTIONS_QUERY);
         requestBody.put("operationName", "problemsetQuestionListV2");
 
+        // We use simple Maps here instead of the complex QuestionSearchRequest object
+        // This allows us to delete QuestionSearchRequest.java and related Enums.
         Map<String, Object> variables = new HashMap<>();
         variables.put("skip", 0);
         variables.put("limit", 10000);
         variables.put("categorySlug", "all-code-essentials");
         variables.put("searchKeyword", "");
-        variables.put("sortBy", QuestionSearchRequest.SortingCriteria.builder()
-                .sortField(SortField.CUSTOM)
-                .sortOrder(SortOrder.ASCENDING)
-                .build());
-        variables.put("filters", QuestionSearchRequest.FilterCriteria.builder()
-                .filterCombineType("ALL")
-                .difficultyFilter(QuestionSearchRequest.DifficultyFilter.builder()
-                        .difficulties(new ArrayList<>())
-                        .operator(FilterOperator.IS)
-                        .build())
-                .languageFilter(QuestionSearchRequest.LanguageFilter.builder()
-                        .languageSlugs(new ArrayList<>())
-                        .operator(FilterOperator.IS)
-                        .build())
-                .topicFilter(QuestionSearchRequest.TopicFilter.builder()
-                        .topicSlugs(new ArrayList<>())
-                        .operator(FilterOperator.IS)
-                        .build())
-                .build());
+
+        // Hardcoded "Custom Ascending" sort
+        variables.put("sortBy", Map.of("sortField", "CUSTOM", "sortOrder", "ASCENDING"));
+
+        // Hardcoded "Empty" filters
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("filterCombineType", "ALL");
+        filters.put("difficultyFilter", Map.of("difficulties", new ArrayList<>(), "operator", "IS"));
+        filters.put("languageFilter", Map.of("languageSlugs", new ArrayList<>(), "operator", "IS"));
+        filters.put("topicFilter", Map.of("topicSlugs", new ArrayList<>(), "operator", "IS"));
+
+        variables.put("filters", filters);
         requestBody.put("variables", variables);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
@@ -116,21 +81,6 @@ public class LeetCodeClient {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
         return restTemplate.postForObject(leetcodeApiUrl, entity, UserRecentSubmissionsResponse.class);
-    }
-
-    /**
-     * Fetches the Problem of the Day (POTD).
-     */
-    @RateLimiter(name = "leetcode-api")
-    public DailyCodingChallengeResponse fetchDailyCodingChallengeQuestions() {
-        HttpHeaders headers = new HttpHeaders();
-        setHeader(headers);
-
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("query", FETCH_POTD);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-        return restTemplate.postForObject(leetcodeApiUrl, entity, DailyCodingChallengeResponse.class);
     }
 
     /**

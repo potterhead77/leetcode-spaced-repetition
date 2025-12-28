@@ -1,7 +1,7 @@
-# This workflow builds the Spring Boot application and deploys it to VM.
+# This workflow builds the Spring Boot application.
 # It is triggered on pushes to the 'main' branch or can be run manually.
 
-name: Build and Deploy to VM
+name: Build and Test
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin' # A popular, high-quality build of OpenJDK
+          distribution: 'temurin'
 
       - name: Cache Maven packages
         uses: actions/cache@v4
@@ -33,9 +33,9 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-            
+
       - name: Create required directories for SQLite database
-        run: mkdir -p data      
+        run: mkdir -p data
 
       - name: Build with Maven Wrapper
         run: |
@@ -47,54 +47,4 @@ jobs:
         with:
           name: app-jar
           path: target/leetcode-api-*.jar
-          retention-days: 1 # We only need this artifact for the next job
-
-  deploy:
-    name: Deploy to VM
-    runs-on: ubuntu-latest
-    needs: build # This job will only run if the 'build' job succeeds
-
-    steps:
-      - name: Download JAR artifact
-        # Download the 'app-jar' artifact that the 'build' job uploaded
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: . # Download to the current directory
-
-      - name: Find JAR file name
-        # The downloaded file has a version number. We need to find the
-        # exact file name to use it in the next step.
-        id: find_jar
-        run: echo "JAR_NAME=$(ls leetcode-api-*.jar)" >> $GITHUB_OUTPUT
-
-      - name: Copy JAR to VM via SCP
-
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USERNAME }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: 22
-          source: ${{ steps.find_jar.outputs.JAR_NAME }}
-          target: "/opt/leetstats-api" # This is the WorkingDirectory from our systemd file
-
-      - name: SSH and Restart Service
-        # This action securely logs into our VM and runs the restart commands
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USERNAME }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: 22
-          script: |
-            echo "Stopping leetstats-api service..."
-            sudo systemctl stop leetstats-api
-            
-            echo "Starting leetstats-api service with new JAR..."
-            sudo systemctl start leetstats-api
-            
-            echo "Checking service status..."
-            sleep 5 # Give the service a moment to start
-            sudo systemctl status leetstats-api
-            echo "Deployment complete."
+          retention-days: 1

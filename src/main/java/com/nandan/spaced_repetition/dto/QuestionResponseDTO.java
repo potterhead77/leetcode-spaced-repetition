@@ -1,13 +1,10 @@
-// IN: com.rajat_singh.leetcode_api.dto.QuestionResponseDTO.java
 package com.nandan.spaced_repetition.dto;
 
-import com.nandan.spaced_repetition.entity.TopicTag; // Use your @Embeddable
 import lombok.Data;
-import java.util.List;
 
 @Data
 public class QuestionResponseDTO {
-    // This DTO represents a SINGLE question from our database
+    // Represents a single question sent to the frontend/API user
     private int id;
     private String difficulty;
     private String title;
@@ -15,5 +12,4 @@ public class QuestionResponseDTO {
     private Double acRate;
     private Boolean isPaidOnly;
     private String problemUrl;
-    private List<TopicTag> topicTags;
 }

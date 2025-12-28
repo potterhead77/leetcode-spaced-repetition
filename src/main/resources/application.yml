@@ -19,26 +19,35 @@ spring:
             enable: true
             required: true
 
+  # --- CHANGED: DATABASE CONFIGURATION (PostgreSQL) ---
   datasource:
-    url: jdbc:sqlite:./data/leetcode.db
-    driver-class-name: org.sqlite.JDBC
+    # Railway automatically provides PGHOST, PGPORT, etc.
+    # Defaults are set to 'localhost' for your local testing.
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:leetcode_srs}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:password}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
-    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    # Changed from SQLiteDialect to PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: true
+        # Optional: Helps Postgres work better with JDBC
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  # ----------------------------------------------------
+
   mvc:
-    # This tells Spring to throw an exception when no handler is found,
-    # which our new @ExceptionHandler(NoHandlerFoundException.class) can catch.
     throw-exception-if-no-handler-found: true
   web:
     resources:
-      # This disables Spring's default static resource handling,
-      # which is necessary for the above property to work reliably for API-only apps.
       add-mappings: false
 
 leetcode:
@@ -56,7 +65,6 @@ management:
         include: health,info,metrics,prometheus
   endpoint:
     health:
-      # Show detailed health status, including cache and DB checks.
       show-details: always
     caches:
       enabled: true
@@ -65,11 +73,10 @@ management:
 resilience4j:
   ratelimiter:
     instances:
-      # name of our outbound limiter
       leetcode-api:
-        limitForPeriod: 10                # Allow only 10 calls...
-        limitRefreshPeriod: 1s            # ...per 1 second.
-        timeoutDuration: 2s               # How long to wait for permission
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 2s
         register-health-indicator: true
 
 springdoc:
@@ -77,20 +84,21 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui/index.html
-    # This tells Springdoc to use the forwarded headers to generate the correct HTTPS URL
     use-forward-headers: true
   info:
     title: leetstats-api
     description: "The API for retrieving your LeetCode profile & Problems statistics"
     version: "0.0.1-SNAPSHOT"
   servers:
-    - url: https://4.213.1.116.nip.io
+    # You can update this URL once Railway gives you a public domain
+    - url: https://${RAILWAY_PUBLIC_DOMAIN:localhost:8080}
       description: Production server
     - url: http://localhost:8080
       description: Local development server
 
 scheduler:
-  enabled: true #change this to true when deploying via pipeline for testing we can keep it false after once the data is loaded in db
+  # Set to true so it syncs data automatically in production
+  enabled: true
 
 server:
   forward-headers-strategy: NATIVE

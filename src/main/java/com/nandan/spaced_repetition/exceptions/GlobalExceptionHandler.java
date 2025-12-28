@@ -14,11 +14,10 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     /**
      * Handles 404 errors for paths that do not exist.
-     * This is triggered when spring.mvc.throw-exception-if-no-handler-found=true
      */
-
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNoHandlerFound(
             NoHandlerFoundException ex, HttpServletRequest request) {
@@ -33,7 +32,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-
+    /**
+     * Handles invalid types in URL parameters (e.g. passing a string for an integer ID).
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorResponse> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
@@ -52,6 +53,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    /**
+     * Handles malformed JSON bodies (e.g. missing commas or brackets).
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiErrorResponse> handleUnreadableRequest(
             HttpMessageNotReadableException ex, HttpServletRequest request) {
@@ -66,60 +70,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleUserNotFound(
-            UserNotFoundException ex, HttpServletRequest request) {
-
-        ApiErrorResponse response = new ApiErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "User Not Found",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(InvalidTrendDirection.class)
-    public ResponseEntity<ApiErrorResponse> handleInvalidTrendDirection(
-            InvalidTrendDirection ex, HttpServletRequest request) {
-
-        ApiErrorResponse response = new ApiErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Invalid Trend Direction",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(NoMatchingContest.class)
-    public ResponseEntity<ApiErrorResponse> handleNoMatchingContest( NoMatchingContest ex, HttpServletRequest request) {
-
-        ApiErrorResponse response = new ApiErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "No Matching Contest",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(InvalidContestTime.class)
-    public ResponseEntity<ApiErrorResponse> handleInvalidContestTime( InvalidContestTime ex, HttpServletRequest request) {
-
-        ApiErrorResponse response = new ApiErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Invalid Contest Time",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
+    /**
+     * Handles manual BadRequestExceptions thrown from your logic.
+     */
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiErrorResponse> handleBadRequestException(
             BadRequestException ex, HttpServletRequest request) {
@@ -134,6 +87,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    /**
+     * Catch-all for any other unexpected errors.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(
             Exception ex, HttpServletRequest request) {
@@ -142,7 +98,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                ex.getMessage(),
+                ex.getMessage(), // In production, you might want to hide the raw message
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
