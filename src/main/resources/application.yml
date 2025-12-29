@@ -13,7 +13,7 @@ spring:
       indent_output: true
   mail:
     host: smtp.gmail.com
-    port: 587
+    port: 465
     username: nandansanjay35@gmail.com
     # Use the 16-character App Password generated from your Google Account
     password: ${GMAIL_APP_PASSWORD}
