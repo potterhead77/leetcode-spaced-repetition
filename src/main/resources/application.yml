@@ -26,10 +26,11 @@ spring:
             required: true
 
   # --- CHANGED: DATABASE CONFIGURATION (PostgreSQL) ---
+
   datasource:
-    # Railway automatically provides PGHOST, PGPORT, etc.
-    # Defaults are set to 'localhost' for your local testing.
-    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:leetcode_srs}
+    # 1. Indentation: 'datasource' is inside 'spring' (2 spaces)
+    # 2. URL Fix: We added '?options=-c%20timezone=UTC' at the end
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:leetcode_srs}?options=-c%20timezone=UTC
     username: ${PGUSER:postgres}
     password: ${PGPASSWORD:password}
     driver-class-name: org.postgresql.Driver
