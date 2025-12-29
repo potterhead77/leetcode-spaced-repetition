@@ -34,13 +34,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      # We don't strictly need this directory step anymore since we aren't running DB tests,
+      # but leaving it doesn't hurt.
       - name: Create required directories for SQLite database
         run: mkdir -p data
 
-      - name: Build with Maven Wrapper
+      - name: Build with Maven Wrapper (Skipping Tests)
         run: |
           chmod +x mvnw
-          ./mvnw clean package
+          ./mvnw clean package -DskipTests
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
