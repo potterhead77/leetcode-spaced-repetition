@@ -1,4 +1,4 @@
-eetCode Spaced Repetition (SR) Engine
+LeetCode Spaced Repetition (SR) Engine
 A full-stack engineered Spring Boot backend designed to optimize algorithm retention using the SM-2 Spaced Repetition algorithm. The system autonomously tracks your LeetCode activity, persists learning states in a PostgreSQL database, calculates optimal review intervals, and proactively notifies you via email when it's time to practice.
 
 🚀 Key Features
