@@ -37,32 +37,6 @@ public class GraphQlQueries {
             }
             """;
 
-    public static final String FETCH_QUESTIONS_FOR_AC_RATE_SYNC_QUERY = """
-            query problemsetQuestionListV2(
-              $filters: QuestionFilterInput,
-              $limit: Int,
-              $searchKeyword: String,
-              $skip: Int,
-              $sortBy: QuestionSortByInput,
-              $categorySlug: String
-            ) {
-              problemsetQuestionListV2(
-                filters: $filters
-                limit: $limit
-                searchKeyword: $searchKeyword
-                skip: $skip
-                sortBy: $sortBy
-                categorySlug: $categorySlug
-              ) {
-                questions {
-                  id
-                  titleSlug
-                  acRate
-                }
-                totalLength
-              }
-            }
-            """;
 
 
 

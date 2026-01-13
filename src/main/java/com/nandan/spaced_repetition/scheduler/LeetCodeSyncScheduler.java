@@ -65,21 +65,5 @@ public class LeetCodeSyncScheduler {
         Logger.info("LeetCode [Full Data] sync completed in {} seconds.", (endTime - startTime) / 1000);
     }
 
-    @Scheduled(fixedRate = DAY_IN_MILLISECONDS) // Runs every day for AC Rate sync
-    @Async
-    public void syncAcRateData() {
-        Logger.info("Starting LeetCode [AC Rate] sync... at {}", DateFormat.getDateInstance().format(System.currentTimeMillis()));
-        Long startTime = System.currentTimeMillis();
-        QuestionListResponse response = leetCodeApiClient.fetchAllQuestions(true);
 
-        for (QuestionListResponse.Question dto : response.getData().getProblemsetQuestionListV2().getQuestions()) {
-            QuestionEntity existingQuestion = questionRepository.findByTitleSlug(dto.getTitleSlug());
-            if(Objects.nonNull(existingQuestion)){
-                existingQuestion.setAcRate(dto.getAcRate());
-                questionRepository.save(existingQuestion);
-            }
-        }
-        Long endTime = System.currentTimeMillis();
-        Logger.info("LeetCode [AC Rate] sync completed in {} seconds.", (endTime - startTime) / 1000);
-    }
 }
