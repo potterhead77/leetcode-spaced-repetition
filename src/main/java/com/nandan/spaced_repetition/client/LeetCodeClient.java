@@ -29,11 +29,11 @@ public class LeetCodeClient {
      * Used by the Scheduler to keep the local DB in sync.
      */
     @RateLimiter(name = "leetcode-api")
-    public QuestionListResponse fetchAllQuestions(Boolean forAcRateSync) {
+    public QuestionListResponse fetchAllQuestions() {
         HttpHeaders headers = new HttpHeaders();
         setHeader(headers);
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("query", forAcRateSync ? FETCH_QUESTIONS_FOR_AC_RATE_SYNC_QUERY : FETCH_QUESTIONS_QUERY);
+        requestBody.put("query", FETCH_QUESTIONS_QUERY);
         requestBody.put("operationName", "problemsetQuestionListV2");
 
         // We use simple Maps here instead of the complex QuestionSearchRequest object

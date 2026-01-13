@@ -41,7 +41,7 @@ public class LeetCodeSyncScheduler {
         long startTime = System.currentTimeMillis();
 
         // Fetch all questions
-        QuestionListResponse response = leetCodeApiClient.fetchAllQuestions(false);
+        QuestionListResponse response = leetCodeApiClient.fetchAllQuestions();
 
         for (QuestionListResponse.Question dto : response.getData().getProblemsetQuestionListV2().getQuestions()) {
 
